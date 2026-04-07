@@ -62,6 +62,16 @@ function buildSessionQuestions(config: TestSessionConfig): Question[] {
   return result;
 }
 
+function getBlockIndexRange(
+  currentBlock: number,
+  questionsPerBlock: number,
+  totalQuestions: number,
+) {
+  const start = Math.max(0, (currentBlock - 1) * questionsPerBlock);
+  const end = Math.min(start + questionsPerBlock, totalQuestions);
+  return { start, end };
+}
+
 export function TestSessionProvider({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -107,7 +117,7 @@ export function TestSessionProvider({
         answers: {},
         flaggedQuestions: {},
         blockTimeRemainingSeconds: config.minutesPerBlock * 60,
-        status: "in_progress",
+        status: sessionQuestions.length > 0 ? "in_progress" : "finished",
       });
     }
 
@@ -122,30 +132,62 @@ export function TestSessionProvider({
     }
 
     function goToNextQuestion() {
-      setState((prev) => ({
-        ...prev,
-        currentQuestionIndex: Math.min(
-          prev.currentQuestionIndex + 1,
-          Math.max(prev.questions.length - 1, 0),
-        ),
-      }));
+      setState((prev) => {
+        if (!prev.config) {
+          return prev;
+        }
+
+        const { start, end } = getBlockIndexRange(
+          prev.currentBlock,
+          prev.config.questionsPerBlock,
+          prev.questions.length,
+        );
+        const maxIndex = Math.max(end - 1, start);
+
+        return {
+          ...prev,
+          currentQuestionIndex: Math.min(prev.currentQuestionIndex + 1, maxIndex),
+        };
+      });
     }
 
     function goToPreviousQuestion() {
-      setState((prev) => ({
-        ...prev,
-        currentQuestionIndex: Math.max(prev.currentQuestionIndex - 1, 0),
-      }));
+      setState((prev) => {
+        if (!prev.config) {
+          return prev;
+        }
+
+        const { start } = getBlockIndexRange(
+          prev.currentBlock,
+          prev.config.questionsPerBlock,
+          prev.questions.length,
+        );
+
+        return {
+          ...prev,
+          currentQuestionIndex: Math.max(prev.currentQuestionIndex - 1, start),
+        };
+      });
     }
 
     function goToQuestion(index: number) {
-      setState((prev) => ({
-        ...prev,
-        currentQuestionIndex: Math.min(
-          Math.max(index, 0),
-          Math.max(prev.questions.length - 1, 0),
-        ),
-      }));
+      setState((prev) => {
+        if (!prev.config) {
+          return prev;
+        }
+
+        const { start, end } = getBlockIndexRange(
+          prev.currentBlock,
+          prev.config.questionsPerBlock,
+          prev.questions.length,
+        );
+        const maxIndex = Math.max(end - 1, start);
+
+        return {
+          ...prev,
+          currentQuestionIndex: Math.min(Math.max(index, start), maxIndex),
+        };
+      });
     }
 
     function toggleFlag(questionId: string) {
@@ -161,6 +203,10 @@ export function TestSessionProvider({
     function nextBlock() {
       setState((prev) => {
         if (!prev.config) {
+          return prev;
+        }
+
+        if (prev.status !== "block_complete") {
           return prev;
         }
 

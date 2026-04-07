@@ -78,6 +78,27 @@ export default function TestSessionPage() {
   const canGoPrevious = currentQuestionIndex > blockQuestionRange.start;
   const canGoNext = currentQuestionIndex < blockQuestionRange.end - 1;
 
+  useEffect(() => {
+    if (!config || status === "block_complete" || questions.length === 0) {
+      return;
+    }
+
+    if (
+      currentQuestionIndex < blockQuestionRange.start ||
+      currentQuestionIndex >= blockQuestionRange.end
+    ) {
+      goToQuestion(blockQuestionRange.start);
+    }
+  }, [
+    blockQuestionRange.end,
+    blockQuestionRange.start,
+    config,
+    currentQuestionIndex,
+    goToQuestion,
+    questions.length,
+    status,
+  ]);
+
   function formatSeconds(totalSeconds: number) {
     const minutes = Math.floor(totalSeconds / 60)
       .toString()
@@ -107,6 +128,39 @@ export default function TestSessionPage() {
             >
               Go to Test Setup
             </Link>
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {config && questions.length === 0 ? (
+        <Card>
+          <CardContent className="space-y-4 pt-6">
+            <h1 className="text-2xl font-semibold tracking-tight">
+              No Questions Available
+            </h1>
+            <p className="text-muted-foreground">
+              The current test session has no questions. Return to setup and try
+              again.
+            </p>
+            <Link
+              href="/test/setup"
+              className="inline-flex rounded-md border border-border px-4 py-2 text-sm font-medium transition-colors hover:bg-accent"
+            >
+              Back to Test Setup
+            </Link>
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {config && questions.length > 0 && !currentQuestion && status !== "block_complete" ? (
+        <Card>
+          <CardContent className="space-y-4 pt-6">
+            <h1 className="text-2xl font-semibold tracking-tight">
+              Loading Current Question
+            </h1>
+            <p className="text-muted-foreground">
+              Please wait while the current block question is prepared.
+            </p>
           </CardContent>
         </Card>
       ) : null}

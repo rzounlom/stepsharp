@@ -4,3 +4,5 @@ export type ModeCard = {
   href: string;
   ctaLabel: string;
 };
+
+export type { Question, QuestionChoice } from "./question";

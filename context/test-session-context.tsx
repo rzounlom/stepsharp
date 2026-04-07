@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { getAllQuestions } from "@/lib/questions";
 import type { Question } from "@/types/question";
 import type {
+  BlockCompleteReason,
   TestSessionConfig,
   TestSessionState,
   SessionStatus,
@@ -30,6 +31,7 @@ const INITIAL_STATE: TestSessionState = {
   flaggedQuestions: {},
   blockTimeRemainingSeconds: 0,
   status: "idle",
+  blockCompleteReason: null,
 };
 
 const TestSessionContext = createContext<TestSessionContextValue | undefined>(
@@ -57,7 +59,12 @@ function buildSessionQuestions(config: TestSessionConfig): Question[] {
   const result: Question[] = [];
 
   for (let i = 0; i < targetCount; i += 1) {
-    result.push(source[i % source.length]);
+    const sourceQuestion = source[i % source.length];
+    result.push({
+      ...sourceQuestion,
+      // Ensure every question is uniquely addressable within a session.
+      id: `${sourceQuestion.id}__session_${String(i + 1).padStart(4, "0")}`,
+    });
   }
 
   return result;
@@ -97,9 +104,14 @@ export function TestSessionProvider({
         }
 
         const hasMoreBlocks = prev.currentBlock < prev.config.blocks;
+        const nextStatus = getStatusForTimeEnd(prev.status, hasMoreBlocks);
+        const blockCompleteReason: BlockCompleteReason =
+          nextStatus === "block_complete" ? "timer_expired" : prev.blockCompleteReason;
+
         return {
           ...prev,
-          status: getStatusForTimeEnd(prev.status, hasMoreBlocks),
+          status: nextStatus,
+          blockCompleteReason,
         };
       });
     }, 1000);
@@ -119,6 +131,7 @@ export function TestSessionProvider({
         flaggedQuestions: {},
         blockTimeRemainingSeconds: config.minutesPerBlock * 60,
         status: sessionQuestions.length > 0 ? "in_progress" : "finished",
+        blockCompleteReason: null,
       });
     }
 
@@ -212,6 +225,7 @@ export function TestSessionProvider({
           ...prev,
           status: hasMoreBlocks ? "block_complete" : "finished",
           blockTimeRemainingSeconds: hasMoreBlocks ? 0 : prev.blockTimeRemainingSeconds,
+          blockCompleteReason: hasMoreBlocks ? "ended_early" : null,
         };
       });
     }
@@ -247,6 +261,7 @@ export function TestSessionProvider({
           ),
           blockTimeRemainingSeconds: prev.config.minutesPerBlock * 60,
           status: "in_progress",
+          blockCompleteReason: null,
         };
       });
     }
@@ -256,6 +271,7 @@ export function TestSessionProvider({
         ...prev,
         status: "finished",
         blockTimeRemainingSeconds: 0,
+        blockCompleteReason: null,
       }));
     }
 

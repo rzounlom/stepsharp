@@ -22,6 +22,7 @@ export default function TestSessionPage() {
     flaggedQuestions,
     blockTimeRemainingSeconds,
     status,
+    blockCompleteReason,
     startSession,
     selectAnswer,
     goToQuestion,
@@ -216,11 +217,17 @@ export default function TestSessionPage() {
                         !isCurrent &&
                           !isAnswered &&
                           "border-border text-muted-foreground",
-                        isQuestionFlagged && "ring-1 ring-amber-400",
+                        isQuestionFlagged &&
+                          "border-amber-400 ring-1 ring-amber-400 ring-offset-1 ring-offset-background",
                       )}
                       aria-label={`Go to question ${index + 1} in block`}
                     >
                       {index + 1}
+                      {isQuestionFlagged ? (
+                        <span className="ml-1 text-[10px] leading-none text-amber-700">
+                          *
+                        </span>
+                      ) : null}
                     </button>
                   );
                 })}
@@ -289,7 +296,9 @@ export default function TestSessionPage() {
           <CardContent className="space-y-4 pt-6">
             <h2 className="text-2xl font-semibold tracking-tight">Block Complete</h2>
             <p className="text-muted-foreground">
-              Time has ended for Block {currentBlock}. Continue when you are ready.
+              {blockCompleteReason === "ended_early"
+                ? `You ended Block ${currentBlock} early. Continue when you are ready.`
+                : `Time has ended for Block ${currentBlock}. Continue when you are ready.`}
             </p>
             <Button onClick={nextBlock}>Start Next Block</Button>
           </CardContent>

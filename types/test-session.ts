@@ -7,6 +7,8 @@ export type SessionStatus =
   | "block_complete"
   | "finished";
 
+export type BlockCompleteReason = "timer_expired" | "ended_early" | null;
+
 export type TestSessionConfig = {
   blocks: number;
   questionsPerBlock: number;
@@ -23,4 +25,5 @@ export type TestSessionState = {
   flaggedQuestions: Record<string, boolean>;
   blockTimeRemainingSeconds: number;
   status: SessionStatus;
+  blockCompleteReason: BlockCompleteReason;
 };

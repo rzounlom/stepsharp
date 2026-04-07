@@ -6,3 +6,8 @@ export type ModeCard = {
 };
 
 export type { Question, QuestionChoice } from "./question";
+export type {
+  SessionStatus,
+  TestSessionConfig,
+  TestSessionState,
+} from "./test-session";

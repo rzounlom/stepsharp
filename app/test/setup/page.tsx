@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useTestSession } from "@/context/test-session-context";
 import { cn } from "@/lib/utils";
 import { TEST_MODE_PRESETS } from "@/lib/test-setup";
 import { useTestSetup } from "@/context/test-setup-context";
@@ -16,8 +17,17 @@ export default function TestSetupPage() {
     setPresetId,
     setBlockTransitionMode,
   } = useTestSetup();
+  const { startSession } = useTestSession();
 
   function handleStartTest() {
+    if (selectedPreset) {
+      startSession({
+        blocks: selectedPreset.blocks,
+        questionsPerBlock: selectedPreset.questionsPerBlock,
+        minutesPerBlock: selectedPreset.minutesPerBlock,
+        blockTransitionMode: setup.blockTransitionMode,
+      });
+    }
     router.push("/test/session");
   }
 

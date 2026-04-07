@@ -1,46 +1,193 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import { AnswerChoices } from "@/components/tutor/answer-choices";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { useTestSession } from "@/context/test-session-context";
 import { useTestSetup } from "@/context/test-setup-context";
 
 export default function TestSessionPage() {
+  const router = useRouter();
   const { selectedPreset, setup, isHydrating } = useTestSetup();
+  const {
+    config,
+    questions,
+    currentQuestionIndex,
+    currentBlock,
+    answers,
+    flaggedQuestions,
+    blockTimeRemainingSeconds,
+    status,
+    startSession,
+    selectAnswer,
+    goToQuestion,
+    toggleFlag,
+    nextBlock,
+  } = useTestSession();
+
+  useEffect(() => {
+    if (isHydrating) {
+      return;
+    }
+
+    if (status === "idle" && selectedPreset) {
+      startSession({
+        blocks: selectedPreset.blocks,
+        questionsPerBlock: selectedPreset.questionsPerBlock,
+        minutesPerBlock: selectedPreset.minutesPerBlock,
+        blockTransitionMode: setup.blockTransitionMode,
+      });
+    }
+  }, [isHydrating, selectedPreset, setup.blockTransitionMode, startSession, status]);
+
+  useEffect(() => {
+    if (status === "finished") {
+      router.push("/test/results");
+    }
+  }, [router, status]);
+
+  useEffect(() => {
+    if (status !== "block_complete" || !config) {
+      return;
+    }
+
+    if (config.blockTransitionMode === "auto") {
+      nextBlock();
+    }
+  }, [config, nextBlock, status]);
+
+  const blockQuestionRange = useMemo(() => {
+    if (!config) {
+      return { start: 0, end: 0 };
+    }
+
+    const start = (currentBlock - 1) * config.questionsPerBlock;
+    const end = Math.min(start + config.questionsPerBlock, questions.length);
+    return { start, end };
+  }, [config, currentBlock, questions.length]);
+
+  const currentQuestion = questions[currentQuestionIndex];
+  const questionNumberInBlock =
+    currentQuestionIndex - blockQuestionRange.start + 1;
+  const selectedAnswer = currentQuestion ? answers[currentQuestion.id] ?? "" : "";
+  const isFlagged = currentQuestion ? !!flaggedQuestions[currentQuestion.id] : false;
+
+  const canGoPrevious = currentQuestionIndex > blockQuestionRange.start;
+  const canGoNext = currentQuestionIndex < blockQuestionRange.end - 1;
+
+  function formatSeconds(totalSeconds: number) {
+    const minutes = Math.floor(totalSeconds / 60)
+      .toString()
+      .padStart(2, "0");
+    const seconds = (totalSeconds % 60).toString().padStart(2, "0");
+    return `${minutes}:${seconds}`;
+  }
 
   return (
-    <section className="space-y-4">
-      <h1 className="text-3xl font-semibold tracking-tight">Test Session</h1>
-      <p className="max-w-2xl text-muted-foreground">
-        Session screen placeholder for timed questions and answer submission.
-      </p>
-      <div className="max-w-2xl rounded-lg border border-border bg-muted/30 p-4 text-sm">
-        {isHydrating ? (
-          <p className="text-muted-foreground">Loading test setup...</p>
-        ) : selectedPreset ? (
-          <div className="space-y-1">
-            <p>
-              <span className="font-medium">Mode: </span>
-              {selectedPreset.blocks} blocks, {selectedPreset.questionsPerBlock}{" "}
-              questions/block, {selectedPreset.minutesPerBlock} minutes/block
+    <section className="mx-auto w-full max-w-5xl space-y-6">
+      {isHydrating ? (
+        <p className="text-sm text-muted-foreground">Loading test setup...</p>
+      ) : null}
+
+      {!isHydrating && !selectedPreset && status === "idle" ? (
+        <Card>
+          <CardContent className="space-y-4 pt-6">
+            <h1 className="text-2xl font-semibold tracking-tight">
+              No Active Test Session
+            </h1>
+            <p className="text-muted-foreground">
+              You need to configure a test before starting a session.
             </p>
-            <p>
-              <span className="font-medium">Block transition: </span>
-              {setup.blockTransitionMode === "manual"
-                ? "Manual"
-                : "Automatic on time expiration"}
+            <Link
+              href="/test/setup"
+              className="inline-flex rounded-md border border-border px-4 py-2 text-sm font-medium transition-colors hover:bg-accent"
+            >
+              Go to Test Setup
+            </Link>
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {config && currentQuestion && status !== "block_complete" ? (
+        <>
+          <header className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-muted/20 px-4 py-3 text-sm">
+            <div className="flex items-center gap-6">
+              <p>
+                <span className="font-medium">Block:</span> {currentBlock} /{" "}
+                {config.blocks}
+              </p>
+              <p>
+                <span className="font-medium">Question:</span>{" "}
+                {questionNumberInBlock} / {config.questionsPerBlock}
+              </p>
+            </div>
+            <p className="font-semibold tabular-nums">
+              Time Left: {formatSeconds(blockTimeRemainingSeconds)}
             </p>
+          </header>
+
+          <Card className="border border-border">
+            <CardContent className="space-y-6 pt-6">
+              <p className="text-lg leading-8">{currentQuestion.stem}</p>
+
+              <AnswerChoices
+                choices={currentQuestion.choices}
+                selectedAnswer={selectedAnswer}
+                onSelect={(answer) => selectAnswer(currentQuestion.id, answer)}
+              />
+            </CardContent>
+          </Card>
+
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-3">
+            <div className="flex items-center gap-2">
+              <Button
+                variant={isFlagged ? "default" : "outline"}
+                onClick={() => toggleFlag(currentQuestion.id)}
+              >
+                {isFlagged ? "Flagged" : "Mark/Flag"}
+              </Button>
+              <Button variant="outline" disabled>
+                Pause (Soon)
+              </Button>
+              <Button variant="outline" disabled>
+                Block Summary (Soon)
+              </Button>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                onClick={() => goToQuestion(currentQuestionIndex - 1)}
+                disabled={!canGoPrevious}
+              >
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => goToQuestion(currentQuestionIndex + 1)}
+                disabled={!canGoNext}
+              >
+                Next
+              </Button>
+            </div>
           </div>
-        ) : (
-          <p className="text-muted-foreground">
-            No setup selected. Return to setup to configure this session.
-          </p>
-        )}
-      </div>
-      <Link
-        href="/test/results"
-        className="inline-flex rounded-md border border-border px-4 py-2 text-sm font-medium transition-colors hover:bg-accent"
-      >
-        Finish and View Results
-      </Link>
+        </>
+      ) : null}
+
+      {status === "block_complete" && config ? (
+        <Card>
+          <CardContent className="space-y-4 pt-6">
+            <h2 className="text-2xl font-semibold tracking-tight">Block Complete</h2>
+            <p className="text-muted-foreground">
+              Time has ended for Block {currentBlock}. Continue when you are ready.
+            </p>
+            <Button onClick={nextBlock}>Start Next Block</Button>
+          </CardContent>
+        </Card>
+      ) : null}
     </section>
   );
 }

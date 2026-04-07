@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useTestSession } from "@/context/test-session-context";
 import { useTestSetup } from "@/context/test-setup-context";
+import { cn } from "@/lib/utils";
 
 export default function TestSessionPage() {
   const router = useRouter();
@@ -25,6 +26,7 @@ export default function TestSessionPage() {
     selectAnswer,
     goToQuestion,
     toggleFlag,
+    endBlockEarly,
     nextBlock,
   } = useTestSession();
 
@@ -77,6 +79,10 @@ export default function TestSessionPage() {
 
   const canGoPrevious = currentQuestionIndex > blockQuestionRange.start;
   const canGoNext = currentQuestionIndex < blockQuestionRange.end - 1;
+  const currentBlockQuestions = questions.slice(
+    blockQuestionRange.start,
+    blockQuestionRange.end,
+  );
 
   useEffect(() => {
     if (!config || status === "block_complete" || questions.length === 0) {
@@ -184,6 +190,50 @@ export default function TestSessionPage() {
           </header>
 
           <Card className="border border-border">
+            <CardContent className="space-y-3 pt-4">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Current Block Questions
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {currentBlockQuestions.map((question, index) => {
+                  const absoluteIndex = blockQuestionRange.start + index;
+                  const isCurrent = absoluteIndex === currentQuestionIndex;
+                  const isAnswered = !!answers[question.id];
+                  const isQuestionFlagged = !!flaggedQuestions[question.id];
+
+                  return (
+                    <button
+                      key={`${question.id}-${absoluteIndex}`}
+                      type="button"
+                      onClick={() => goToQuestion(absoluteIndex)}
+                      className={cn(
+                        "inline-flex h-8 min-w-8 items-center justify-center rounded-md border px-2 text-xs font-medium",
+                        "transition-colors hover:bg-muted/50",
+                        isCurrent && "border-primary bg-primary/10 text-primary",
+                        !isCurrent &&
+                          isAnswered &&
+                          "border-emerald-300 bg-emerald-50 text-emerald-700",
+                        !isCurrent &&
+                          !isAnswered &&
+                          "border-border text-muted-foreground",
+                        isQuestionFlagged && "ring-1 ring-amber-400",
+                      )}
+                      aria-label={`Go to question ${index + 1} in block`}
+                    >
+                      {index + 1}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                <span>Current: blue</span>
+                <span>Answered: green</span>
+                <span>Flagged: amber ring</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border border-border">
             <CardContent className="space-y-6 pt-6">
               <p className="text-lg leading-8">{currentQuestion.stem}</p>
 
@@ -208,6 +258,9 @@ export default function TestSessionPage() {
               </Button>
               <Button variant="outline" disabled>
                 Block Summary (Soon)
+              </Button>
+              <Button variant="outline" onClick={endBlockEarly}>
+                End Block Early
               </Button>
             </div>
 

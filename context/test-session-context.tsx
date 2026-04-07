@@ -16,6 +16,7 @@ type TestSessionContextValue = TestSessionState & {
   goToPreviousQuestion: () => void;
   goToQuestion: (index: number) => void;
   toggleFlag: (questionId: string) => void;
+  endBlockEarly: () => void;
   nextBlock: () => void;
   finishSession: () => void;
 };
@@ -200,6 +201,21 @@ export function TestSessionProvider({
       }));
     }
 
+    function endBlockEarly() {
+      setState((prev) => {
+        if (!prev.config || prev.status !== "in_progress") {
+          return prev;
+        }
+
+        const hasMoreBlocks = prev.currentBlock < prev.config.blocks;
+        return {
+          ...prev,
+          status: hasMoreBlocks ? "block_complete" : "finished",
+          blockTimeRemainingSeconds: hasMoreBlocks ? 0 : prev.blockTimeRemainingSeconds,
+        };
+      });
+    }
+
     function nextBlock() {
       setState((prev) => {
         if (!prev.config) {
@@ -251,6 +267,7 @@ export function TestSessionProvider({
       goToPreviousQuestion,
       goToQuestion,
       toggleFlag,
+      endBlockEarly,
       nextBlock,
       finishSession,
     };

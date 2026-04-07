@@ -3,7 +3,7 @@ import { DASHBOARD_MODE_CARDS } from "@/lib/constants";
 
 export default function DashboardPage() {
   return (
-    <section className="space-y-8">
+    <section className="mx-auto w-full max-w-5xl space-y-8">
       <div className="space-y-2">
         <h1 className="text-3xl font-semibold tracking-tight">Dashboard</h1>
         <p className="text-muted-foreground">
@@ -15,7 +15,7 @@ export default function DashboardPage() {
         {DASHBOARD_MODE_CARDS.map((card) => (
           <article
             key={card.title}
-            className="rounded-xl border border-border bg-card p-6 shadow-sm"
+            className="rounded-xl border border-border bg-card p-5 shadow-sm"
           >
             <h2 className="text-xl font-semibold">{card.title}</h2>
             <p className="mt-2 text-sm text-muted-foreground">

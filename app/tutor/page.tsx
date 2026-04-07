@@ -84,29 +84,35 @@ export default function TutorPage() {
 
   if (isLoading) {
     return (
-      <section className="space-y-3">
+      <section className="mx-auto w-full max-w-4xl space-y-4">
         <h1 className="text-3xl font-semibold tracking-tight">Tutor Mode</h1>
-        <p className="text-muted-foreground">Loading questions...</p>
+        <div className="rounded-lg border border-border bg-card p-5">
+          <p className="text-muted-foreground">Loading questions...</p>
+        </div>
       </section>
     );
   }
 
   if (error) {
     return (
-      <section className="space-y-3">
+      <section className="mx-auto w-full max-w-4xl space-y-4">
         <h1 className="text-3xl font-semibold tracking-tight">Tutor Mode</h1>
-        <p className="text-red-600">{error}</p>
+        <div className="rounded-lg border border-rose-200 bg-rose-50/60 p-5">
+          <p className="text-rose-700">{error}</p>
+        </div>
       </section>
     );
   }
 
   if (!currentQuestion) {
     return (
-      <section className="space-y-3">
+      <section className="mx-auto w-full max-w-4xl space-y-4">
         <h1 className="text-3xl font-semibold tracking-tight">Tutor Mode</h1>
-        <p className="text-muted-foreground">
-          No questions available yet. Add questions in `data/questions.ts`.
-        </p>
+        <div className="rounded-lg border border-border bg-card p-5">
+          <p className="text-muted-foreground">
+            No questions available yet. Add questions in `data/questions.ts`.
+          </p>
+        </div>
       </section>
     );
   }

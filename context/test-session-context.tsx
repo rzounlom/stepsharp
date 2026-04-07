@@ -245,6 +245,7 @@ export function TestSessionProvider({
             ...prev,
             status: "finished",
             blockTimeRemainingSeconds: 0,
+            blockCompleteReason: null,
           };
         }
 

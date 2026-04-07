@@ -33,16 +33,23 @@ export default function TestSetupPage() {
 
   if (isHydrating) {
     return (
-      <section className="space-y-4">
+      <section className="mx-auto w-full max-w-4xl space-y-4">
         <h1 className="text-3xl font-semibold tracking-tight">Test Setup</h1>
-        <p className="text-muted-foreground">Loading your saved test setup...</p>
+        <div className="rounded-lg border border-border bg-card p-5">
+          <p className="text-muted-foreground">Loading your saved test setup...</p>
+        </div>
       </section>
     );
   }
 
   return (
     <section className="mx-auto w-full max-w-4xl space-y-8">
-      <h1 className="text-3xl font-semibold tracking-tight">Test Setup</h1>
+      <header className="space-y-2">
+        <h1 className="text-3xl font-semibold tracking-tight">Test Setup</h1>
+        <p className="text-muted-foreground">
+          Choose your block format and transition style before starting.
+        </p>
+      </header>
 
       <div className="grid gap-4 md:grid-cols-2">
         {TEST_MODE_PRESETS.map((preset) => {

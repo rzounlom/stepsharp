@@ -141,7 +141,7 @@ export default function TestSessionPage() {
 
       {config && questions.length === 0 ? (
         <Card>
-          <CardContent className="space-y-4 pt-6">
+          <CardContent className="space-y-4 p-5">
             <h1 className="text-2xl font-semibold tracking-tight">
               No Questions Available
             </h1>
@@ -161,7 +161,7 @@ export default function TestSessionPage() {
 
       {config && questions.length > 0 && !currentQuestion && status !== "block_complete" ? (
         <Card>
-          <CardContent className="space-y-4 pt-6">
+          <CardContent className="space-y-4 p-5">
             <h1 className="text-2xl font-semibold tracking-tight">
               Loading Current Question
             </h1>
@@ -293,7 +293,7 @@ export default function TestSessionPage() {
 
       {status === "block_complete" && config ? (
         <Card>
-          <CardContent className="space-y-4 pt-6">
+          <CardContent className="space-y-4 p-5">
             <h2 className="text-2xl font-semibold tracking-tight">Block Complete</h2>
             <p className="text-muted-foreground">
               {blockCompleteReason === "ended_early"

@@ -1,3 +1,12 @@
+"use client";
+
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  SignUpButton,
+  UserButton,
+} from "@clerk/nextjs";
 import Link from "next/link";
 import { appNavigation } from "@/data/navigation";
 
@@ -22,12 +31,21 @@ export function Navbar() {
           </nav>
         </div>
         <div className="flex items-center gap-2">
-          <button className="rounded-md border border-border px-3 py-1.5 text-sm font-medium transition-colors hover:bg-accent">
-            Sign In
-          </button>
-          <button className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90">
-            Sign Up
-          </button>
+          <SignedOut>
+            <SignInButton mode="redirect" forceRedirectUrl="/dashboard">
+              <button className="rounded-md border border-border px-3 py-1.5 text-sm font-medium transition-colors hover:bg-accent">
+                Sign In
+              </button>
+            </SignInButton>
+            <SignUpButton mode="redirect" forceRedirectUrl="/dashboard">
+              <button className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90">
+                Sign Up
+              </button>
+            </SignUpButton>
+          </SignedOut>
+          <SignedIn>
+            <UserButton afterSignOutUrl="/" />
+          </SignedIn>
         </div>
       </div>
     </header>

@@ -1,16 +1,15 @@
 "use client";
 
 import {
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  SignUpButton,
+  useAuth,
   UserButton,
 } from "@clerk/nextjs";
 import Link from "next/link";
 import { appNavigation } from "@/data/navigation";
 
 export function Navbar() {
+  const { isSignedIn } = useAuth();
+
   return (
     <header className="sticky top-0 z-10 border-b border-border bg-background/90 backdrop-blur">
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4">
@@ -31,21 +30,24 @@ export function Navbar() {
           </nav>
         </div>
         <div className="flex items-center gap-2">
-          <SignedOut>
-            <SignInButton mode="redirect" forceRedirectUrl="/dashboard">
-              <button className="rounded-md border border-border px-3 py-1.5 text-sm font-medium transition-colors hover:bg-accent">
-                Sign In
-              </button>
-            </SignInButton>
-            <SignUpButton mode="redirect" forceRedirectUrl="/dashboard">
-              <button className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90">
-                Sign Up
-              </button>
-            </SignUpButton>
-          </SignedOut>
-          <SignedIn>
+          {isSignedIn ? (
             <UserButton afterSignOutUrl="/" />
-          </SignedIn>
+          ) : (
+            <>
+              <Link
+                href="/sign-in"
+                className="rounded-md border border-border px-3 py-1.5 text-sm font-medium transition-colors hover:bg-accent"
+              >
+                Sign In
+              </Link>
+              <Link
+                href="/sign-up"
+                className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+              >
+                Sign Up
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </header>

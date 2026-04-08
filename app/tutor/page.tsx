@@ -22,6 +22,9 @@ export default function TutorPage() {
   const [submittedByQuestion, setSubmittedByQuestion] = useState<SubmittedMap>(
     {},
   );
+  const [lastSubmittedQuestionId, setLastSubmittedQuestionId] = useState<
+    string | null
+  >(null);
   const explanationRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -54,7 +57,7 @@ export default function TutorPage() {
   }, [currentQuestion, submittedByQuestion]);
 
   useEffect(() => {
-    if (!isSubmitted) {
+    if (!lastSubmittedQuestionId) {
       return;
     }
 
@@ -62,7 +65,18 @@ export default function TutorPage() {
       behavior: "smooth",
       block: "start",
     });
-  }, [isSubmitted, currentQuestion?.id]);
+  }, [lastSubmittedQuestionId]);
+
+  useEffect(() => {
+    if (isLoading || !questions.length) {
+      return;
+    }
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, [currentIndex, isLoading, questions.length]);
 
   function handleSelectAnswer(choiceLabel: string) {
     if (!currentQuestion || isSubmitted) {
@@ -84,6 +98,7 @@ export default function TutorPage() {
       ...prev,
       [currentQuestion.id]: true,
     }));
+    setLastSubmittedQuestionId(currentQuestion.id);
   }
 
   function handlePrevious() {

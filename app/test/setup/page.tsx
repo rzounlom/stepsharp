@@ -25,6 +25,8 @@ export default function TestSetupPage() {
         blocks: selectedPreset.blocks,
         questionsPerBlock: selectedPreset.questionsPerBlock,
         minutesPerBlock: selectedPreset.minutesPerBlock,
+        minimumBreakMinutes: selectedPreset.minimumBreakMinutes,
+        tutorialMinutes: selectedPreset.tutorialMinutes,
         blockTransitionMode: setup.blockTransitionMode,
       });
     }
@@ -47,7 +49,7 @@ export default function TestSetupPage() {
       <header className="space-y-2">
         <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Test Setup</h1>
         <p className="text-muted-foreground">
-          Choose your block format and transition style before starting.
+          Choose the official Step 2 CK timing format you are preparing for.
         </p>
       </header>
 
@@ -89,6 +91,8 @@ export default function TestSetupPage() {
                   <p>{preset.blocks} blocks</p>
                   <p>{preset.questionsPerBlock} questions per block</p>
                   <p>{preset.minutesPerBlock} minutes per block</p>
+                  <p>{preset.minimumBreakMinutes} minutes minimum break bank</p>
+                  <p>{preset.tutorialMinutes} minutes optional tutorial</p>
                 </CardContent>
               </Card>
             </button>
@@ -98,7 +102,7 @@ export default function TestSetupPage() {
 
       <Card className="border-border">
         <CardHeader>
-          <CardTitle className="text-lg">Block Transition</CardTitle>
+          <CardTitle className="text-lg">Timer Expiration Transition</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <button
@@ -111,8 +115,8 @@ export default function TestSetupPage() {
                 : "border-border hover:bg-muted/50",
             )}
           >
-            <span>Move to the next block manually</span>
-            <span className="text-xs text-muted-foreground">Recommended</span>
+            <span>Stay on block-complete screen (manual continue)</span>
+            <span className="text-xs text-muted-foreground">Review-first</span>
           </button>
           <button
             type="button"
@@ -124,8 +128,8 @@ export default function TestSetupPage() {
                 : "border-border hover:bg-muted/50",
             )}
           >
-            <span>Move to the next block automatically when time ends</span>
-            <span className="text-xs text-muted-foreground">Timed flow</span>
+            <span>Auto-advance after timer expiration</span>
+            <span className="text-xs text-muted-foreground">Continuous flow</span>
           </button>
         </CardContent>
       </Card>

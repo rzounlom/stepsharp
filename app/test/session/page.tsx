@@ -21,12 +21,17 @@ export default function TestSessionPage() {
     answers,
     flaggedQuestions,
     blockTimeRemainingSeconds,
+    tutorialTimeRemainingSeconds,
+    breakTimeRemainingSeconds,
     status,
     blockCompleteReason,
     startSession,
     selectAnswer,
     goToQuestion,
     toggleFlag,
+    skipTutorial,
+    startBreak,
+    endBreak,
     endBlockEarly,
     nextBlock,
   } = useTestSession();
@@ -41,6 +46,8 @@ export default function TestSessionPage() {
         blocks: selectedPreset.blocks,
         questionsPerBlock: selectedPreset.questionsPerBlock,
         minutesPerBlock: selectedPreset.minutesPerBlock,
+        minimumBreakMinutes: selectedPreset.minimumBreakMinutes,
+        tutorialMinutes: selectedPreset.tutorialMinutes,
         blockTransitionMode: setup.blockTransitionMode,
       });
     }
@@ -172,7 +179,29 @@ export default function TestSessionPage() {
         </Card>
       ) : null}
 
-      {config && currentQuestion && status !== "block_complete" ? (
+      {status === "tutorial" && config ? (
+        <Card>
+          <CardContent className="space-y-4 p-5">
+            <h2 className="text-xl font-semibold tracking-tight sm:text-2xl">
+              Optional Tutorial
+            </h2>
+            <p className="text-muted-foreground">
+              Remaining tutorial time:{" "}
+              <span className="font-medium tabular-nums">
+                {formatSeconds(tutorialTimeRemainingSeconds)}
+              </span>
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Unused tutorial time is added to your break bank.
+            </p>
+            <Button onClick={skipTutorial} className="min-h-10 w-full sm:w-auto">
+              Start Block 1
+            </Button>
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {config && currentQuestion && status === "in_progress" ? (
         <>
           <header className="grid gap-2 rounded-md border border-border bg-muted/15 px-4 py-3 text-sm sm:flex sm:items-center sm:justify-between sm:gap-3">
             <div className="flex flex-wrap items-center gap-3 sm:gap-6">
@@ -296,6 +325,34 @@ export default function TestSessionPage() {
         </>
       ) : null}
 
+      {status === "break" && config ? (
+        <Card>
+          <CardContent className="space-y-4 p-5">
+            <h2 className="text-xl font-semibold tracking-tight sm:text-2xl">
+              Break In Progress
+            </h2>
+            <p className="text-muted-foreground">
+              Break bank remaining:{" "}
+              <span className="font-medium tabular-nums">
+                {formatSeconds(breakTimeRemainingSeconds)}
+              </span>
+            </p>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Button
+                variant="outline"
+                onClick={endBreak}
+                className="min-h-10 w-full sm:w-auto"
+              >
+                End Break
+              </Button>
+              <Button onClick={nextBlock} className="min-h-10 w-full sm:w-auto">
+                Start Next Block
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      ) : null}
+
       {status === "block_complete" && config ? (
         <Card>
           <CardContent className="space-y-4 p-5">
@@ -307,9 +364,25 @@ export default function TestSessionPage() {
                 ? `You ended Block ${currentBlock} early. Continue when you are ready.`
                 : `Time has ended for Block ${currentBlock}. Continue when you are ready.`}
             </p>
-            <Button onClick={nextBlock} className="min-h-10 w-full sm:w-auto">
-              Start Next Block
-            </Button>
+            <p className="text-sm text-muted-foreground">
+              Break bank available:{" "}
+              <span className="font-medium tabular-nums">
+                {formatSeconds(breakTimeRemainingSeconds)}
+              </span>
+            </p>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Button
+                variant="outline"
+                onClick={startBreak}
+                disabled={breakTimeRemainingSeconds <= 0}
+                className="min-h-10 w-full sm:w-auto"
+              >
+                Start Break
+              </Button>
+              <Button onClick={nextBlock} className="min-h-10 w-full sm:w-auto">
+                Start Next Block
+              </Button>
+            </div>
           </CardContent>
         </Card>
       ) : null}

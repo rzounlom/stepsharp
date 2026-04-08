@@ -2,23 +2,27 @@ import type { TestModePreset, TestSetupState } from "@/types/test-setup";
 
 export const TEST_MODE_PRESETS: TestModePreset[] = [
   {
-    id: "mode-5x50",
-    label: "Option 1",
-    blocks: 5,
-    questionsPerBlock: 50,
-    minutesPerBlock: 75,
+    id: "step2-legacy",
+    label: "Step 2 CK (Legacy: before May 7, 2026)",
+    blocks: 8,
+    questionsPerBlock: 40,
+    minutesPerBlock: 60,
+    minimumBreakMinutes: 45,
+    tutorialMinutes: 15,
   },
   {
-    id: "mode-10x20",
-    label: "Option 2",
-    blocks: 10,
+    id: "step2-new",
+    label: "Step 2 CK (New: May 7, 2026 and later)",
+    blocks: 16,
     questionsPerBlock: 20,
     minutesPerBlock: 30,
+    minimumBreakMinutes: 55,
+    tutorialMinutes: 5,
   },
 ];
 
 export const DEFAULT_TEST_SETUP: TestSetupState = {
-  presetId: "mode-5x50",
+  presetId: "step2-new",
   blockTransitionMode: "manual",
 };
 

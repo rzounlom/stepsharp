@@ -39,7 +39,7 @@ export function TestSetupProvider({
 
       const parsed = JSON.parse(raw) as Partial<TestSetupState>;
       if (
-        (parsed.presetId === "mode-5x50" || parsed.presetId === "mode-10x20") &&
+        (parsed.presetId === "step2-legacy" || parsed.presetId === "step2-new") &&
         (parsed.blockTransitionMode === "manual" ||
           parsed.blockTransitionMode === "auto")
       ) {

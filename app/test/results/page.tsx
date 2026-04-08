@@ -6,7 +6,18 @@ import { SummaryCards } from "@/components/test-results/summary-cards";
 import { useTestSession } from "@/context/test-session-context";
 
 export default function TestResultsPage() {
-  const { questions, answers, flaggedQuestions } = useTestSession();
+  const {
+    questions,
+    answers,
+    flaggedQuestions,
+    config,
+    tutorialTimeRemainingSeconds,
+    breakTimeRemainingSeconds,
+    initialBreakBankSeconds,
+    totalBreakSecondsUsed,
+    totalAddedFromTutorialSeconds,
+    totalAddedFromUnusedBlockSeconds,
+  } = useTestSession();
 
   const totalQuestions = questions.length;
   const correctCount = questions.reduce((count, question) => {
@@ -20,6 +31,10 @@ export default function TestResultsPage() {
   const flaggedCount = Object.values(flaggedQuestions).filter(Boolean).length;
   const percentageCorrect =
     totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
+
+  function formatMinutes(totalSeconds: number) {
+    return Math.floor(totalSeconds / 60);
+  }
 
   return (
     <section className="mx-auto w-full max-w-5xl space-y-6">
@@ -54,6 +69,52 @@ export default function TestResultsPage() {
             incorrectCount={incorrectCount}
             flaggedCount={flaggedCount}
           />
+
+          {config ? (
+            <section className="rounded-md border border-border bg-card p-4 sm:p-5">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                Session Timing Summary
+              </h2>
+              <div className="mt-3 grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
+                <p>
+                  Tutorial used:{" "}
+                  <span className="font-medium text-foreground">
+                    {config.tutorialMinutes - formatMinutes(tutorialTimeRemainingSeconds)} min
+                  </span>
+                </p>
+                <p>
+                  Tutorial added to breaks:{" "}
+                  <span className="font-medium text-foreground">
+                    {formatMinutes(totalAddedFromTutorialSeconds)} min
+                  </span>
+                </p>
+                <p>
+                  Break used:{" "}
+                  <span className="font-medium text-foreground">
+                    {formatMinutes(totalBreakSecondsUsed)} min
+                  </span>
+                </p>
+                <p>
+                  Break remaining:{" "}
+                  <span className="font-medium text-foreground">
+                    {formatMinutes(breakTimeRemainingSeconds)} min
+                  </span>
+                </p>
+                <p>
+                  Initial break bank:{" "}
+                  <span className="font-medium text-foreground">
+                    {formatMinutes(initialBreakBankSeconds)} min
+                  </span>
+                </p>
+                <p>
+                  Unused block time added:{" "}
+                  <span className="font-medium text-foreground">
+                    {formatMinutes(totalAddedFromUnusedBlockSeconds)} min
+                  </span>
+                </p>
+              </div>
+            </section>
+          ) : null}
 
           <section className="space-y-3">
             {questions.map((question, index) => (

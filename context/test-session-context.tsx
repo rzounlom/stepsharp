@@ -17,6 +17,9 @@ type TestSessionContextValue = TestSessionState & {
   goToPreviousQuestion: () => void;
   goToQuestion: (index: number) => void;
   toggleFlag: (questionId: string) => void;
+  skipTutorial: () => void;
+  startBreak: () => void;
+  endBreak: () => void;
   endBlockEarly: () => void;
   nextBlock: () => void;
   finishSession: () => void;
@@ -30,6 +33,12 @@ const INITIAL_STATE: TestSessionState = {
   answers: {},
   flaggedQuestions: {},
   blockTimeRemainingSeconds: 0,
+  tutorialTimeRemainingSeconds: 0,
+  breakTimeRemainingSeconds: 0,
+  initialBreakBankSeconds: 0,
+  totalBreakSecondsUsed: 0,
+  totalAddedFromTutorialSeconds: 0,
+  totalAddedFromUnusedBlockSeconds: 0,
   status: "idle",
   blockCompleteReason: null,
 };
@@ -86,13 +95,40 @@ export function TestSessionProvider({
   const [state, setState] = useState<TestSessionState>(INITIAL_STATE);
 
   useEffect(() => {
-    if (state.status !== "in_progress" || !state.config) {
+    if (!state.config) {
       return;
     }
 
     const interval = window.setInterval(() => {
       setState((prev) => {
-        if (prev.status !== "in_progress" || !prev.config) {
+        if (!prev.config) {
+          return prev;
+        }
+
+        if (prev.status === "tutorial") {
+          if (prev.tutorialTimeRemainingSeconds > 0) {
+            return {
+              ...prev,
+              tutorialTimeRemainingSeconds: prev.tutorialTimeRemainingSeconds - 1,
+            };
+          }
+
+          return { ...prev, status: "in_progress" };
+        }
+
+        if (prev.status === "break") {
+          if (prev.breakTimeRemainingSeconds > 0) {
+            return {
+              ...prev,
+              breakTimeRemainingSeconds: prev.breakTimeRemainingSeconds - 1,
+              totalBreakSecondsUsed: prev.totalBreakSecondsUsed + 1,
+            };
+          }
+
+          return { ...prev, status: "block_complete" };
+        }
+
+        if (prev.status !== "in_progress") {
           return prev;
         }
 
@@ -117,7 +153,7 @@ export function TestSessionProvider({
     }, 1000);
 
     return () => window.clearInterval(interval);
-  }, [state.config, state.status]);
+  }, [state.config]);
 
   const value = useMemo<TestSessionContextValue>(() => {
     function startSession(config: TestSessionConfig) {
@@ -130,7 +166,13 @@ export function TestSessionProvider({
         answers: {},
         flaggedQuestions: {},
         blockTimeRemainingSeconds: config.minutesPerBlock * 60,
-        status: sessionQuestions.length > 0 ? "in_progress" : "finished",
+        tutorialTimeRemainingSeconds: config.tutorialMinutes * 60,
+        breakTimeRemainingSeconds: config.minimumBreakMinutes * 60,
+        initialBreakBankSeconds: config.minimumBreakMinutes * 60,
+        totalBreakSecondsUsed: 0,
+        totalAddedFromTutorialSeconds: 0,
+        totalAddedFromUnusedBlockSeconds: 0,
+        status: sessionQuestions.length > 0 ? "tutorial" : "finished",
         blockCompleteReason: null,
       });
     }
@@ -214,6 +256,50 @@ export function TestSessionProvider({
       }));
     }
 
+    function skipTutorial() {
+      setState((prev) => {
+        if (!prev.config || prev.status !== "tutorial") {
+          return prev;
+        }
+
+        return {
+          ...prev,
+          status: "in_progress",
+          breakTimeRemainingSeconds:
+            prev.breakTimeRemainingSeconds + prev.tutorialTimeRemainingSeconds,
+          totalAddedFromTutorialSeconds:
+            prev.totalAddedFromTutorialSeconds + prev.tutorialTimeRemainingSeconds,
+          tutorialTimeRemainingSeconds: 0,
+        };
+      });
+    }
+
+    function startBreak() {
+      setState((prev) => {
+        if (prev.status !== "block_complete" || prev.breakTimeRemainingSeconds <= 0) {
+          return prev;
+        }
+
+        return {
+          ...prev,
+          status: "break",
+        };
+      });
+    }
+
+    function endBreak() {
+      setState((prev) => {
+        if (prev.status !== "break") {
+          return prev;
+        }
+
+        return {
+          ...prev,
+          status: "block_complete",
+        };
+      });
+    }
+
     function endBlockEarly() {
       setState((prev) => {
         if (!prev.config || prev.status !== "in_progress") {
@@ -224,6 +310,12 @@ export function TestSessionProvider({
         return {
           ...prev,
           status: hasMoreBlocks ? "block_complete" : "finished",
+          breakTimeRemainingSeconds: hasMoreBlocks
+            ? prev.breakTimeRemainingSeconds + prev.blockTimeRemainingSeconds
+            : prev.breakTimeRemainingSeconds,
+          totalAddedFromUnusedBlockSeconds: hasMoreBlocks
+            ? prev.totalAddedFromUnusedBlockSeconds + prev.blockTimeRemainingSeconds
+            : prev.totalAddedFromUnusedBlockSeconds,
           blockTimeRemainingSeconds: hasMoreBlocks ? 0 : prev.blockTimeRemainingSeconds,
           blockCompleteReason: hasMoreBlocks ? "ended_early" : null,
         };
@@ -236,7 +328,7 @@ export function TestSessionProvider({
           return prev;
         }
 
-        if (prev.status !== "block_complete") {
+        if (prev.status !== "block_complete" && prev.status !== "break") {
           return prev;
         }
 
@@ -284,6 +376,9 @@ export function TestSessionProvider({
       goToPreviousQuestion,
       goToQuestion,
       toggleFlag,
+      skipTutorial,
+      startBreak,
+      endBreak,
       endBlockEarly,
       nextBlock,
       finishSession,

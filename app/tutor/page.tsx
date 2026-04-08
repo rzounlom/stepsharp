@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AnswerChoices } from "@/components/tutor/answer-choices";
 import { ExplanationPanel } from "@/components/tutor/explanation-panel";
 import { QuestionCard } from "@/components/tutor/question-card";
@@ -22,6 +22,7 @@ export default function TutorPage() {
   const [submittedByQuestion, setSubmittedByQuestion] = useState<SubmittedMap>(
     {},
   );
+  const explanationRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     try {
@@ -51,6 +52,17 @@ export default function TutorPage() {
 
     return submittedByQuestion[currentQuestion.id] ?? false;
   }, [currentQuestion, submittedByQuestion]);
+
+  useEffect(() => {
+    if (!isSubmitted) {
+      return;
+    }
+
+    explanationRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, [isSubmitted, currentQuestion?.id]);
 
   function handleSelectAnswer(choiceLabel: string) {
     if (!currentQuestion || isSubmitted) {
@@ -85,7 +97,7 @@ export default function TutorPage() {
   if (isLoading) {
     return (
       <section className="mx-auto w-full max-w-4xl space-y-4">
-        <h1 className="text-3xl font-semibold tracking-tight">Tutor Mode</h1>
+        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Tutor Mode</h1>
         <div className="rounded-lg border border-border bg-card p-5">
           <p className="text-muted-foreground">Loading questions...</p>
         </div>
@@ -96,7 +108,7 @@ export default function TutorPage() {
   if (error) {
     return (
       <section className="mx-auto w-full max-w-4xl space-y-4">
-        <h1 className="text-3xl font-semibold tracking-tight">Tutor Mode</h1>
+        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Tutor Mode</h1>
         <div className="rounded-lg border border-rose-200 bg-rose-50/60 p-5">
           <p className="text-rose-700">{error}</p>
         </div>
@@ -107,7 +119,7 @@ export default function TutorPage() {
   if (!currentQuestion) {
     return (
       <section className="mx-auto w-full max-w-4xl space-y-4">
-        <h1 className="text-3xl font-semibold tracking-tight">Tutor Mode</h1>
+        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Tutor Mode</h1>
         <div className="rounded-lg border border-border bg-card p-5">
           <p className="text-muted-foreground">
             No questions available yet. Add questions in `data/questions.ts`.
@@ -120,7 +132,7 @@ export default function TutorPage() {
   return (
     <section className="mx-auto w-full max-w-4xl space-y-6">
       <header className="rounded-md border border-border bg-muted/20 px-4 py-3">
-        <div className="flex items-center justify-between text-sm">
+        <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
           <p className="font-medium tracking-tight">Tutor Mode</p>
           <p className="text-muted-foreground">
             Question {currentIndex + 1} of {questions.length}
@@ -140,24 +152,31 @@ export default function TutorPage() {
           disabled={isSubmitted}
         />
 
-        <div className="flex items-center gap-3">
-          <Button onClick={handleSubmit} disabled={!selectedAnswer || isSubmitted}>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+          <Button
+            onClick={handleSubmit}
+            disabled={!selectedAnswer || isSubmitted}
+            className="min-h-10 w-full sm:w-auto"
+          >
             Submit
           </Button>
           <Button
             variant="outline"
             onClick={handleNext}
             disabled={currentIndex === questions.length - 1}
+            className="min-h-10 w-full sm:w-auto"
           >
             Next Question
           </Button>
         </div>
 
         {isSubmitted ? (
-          <ExplanationPanel
-            question={currentQuestion}
-            selectedAnswer={selectedAnswer}
-          />
+          <div ref={explanationRef}>
+            <ExplanationPanel
+              question={currentQuestion}
+              selectedAnswer={selectedAnswer}
+            />
+          </div>
         ) : null}
 
         <TutorNav

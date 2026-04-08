@@ -14,11 +14,21 @@ export function TutorNav({
   disableNext,
 }: TutorNavProps) {
   return (
-    <div className="flex items-center justify-between border-t border-border pt-4">
-      <Button variant="outline" onClick={onPrevious} disabled={disablePrevious}>
+    <div className="flex flex-col gap-2 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
+      <Button
+        variant="outline"
+        onClick={onPrevious}
+        disabled={disablePrevious}
+        className="min-h-10 w-full sm:w-auto"
+      >
         Previous
       </Button>
-      <Button variant="outline" onClick={onNext} disabled={disableNext}>
+      <Button
+        variant="outline"
+        onClick={onNext}
+        disabled={disableNext}
+        className="min-h-10 w-full sm:w-auto"
+      >
         Next
       </Button>
     </div>

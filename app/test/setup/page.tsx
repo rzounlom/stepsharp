@@ -34,7 +34,7 @@ export default function TestSetupPage() {
   if (isHydrating) {
     return (
       <section className="mx-auto w-full max-w-4xl space-y-4">
-        <h1 className="text-3xl font-semibold tracking-tight">Test Setup</h1>
+        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Test Setup</h1>
         <div className="rounded-lg border border-border bg-card p-5">
           <p className="text-muted-foreground">Loading your saved test setup...</p>
         </div>
@@ -45,7 +45,7 @@ export default function TestSetupPage() {
   return (
     <section className="mx-auto w-full max-w-4xl space-y-8">
       <header className="space-y-2">
-        <h1 className="text-3xl font-semibold tracking-tight">Test Setup</h1>
+        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Test Setup</h1>
         <p className="text-muted-foreground">
           Choose your block format and transition style before starting.
         </p>
@@ -130,7 +130,7 @@ export default function TestSetupPage() {
         </CardContent>
       </Card>
 
-      <div className="flex items-center justify-between rounded-lg border border-border bg-muted/30 px-4 py-3">
+      <div className="flex flex-col gap-3 rounded-lg border border-border bg-muted/30 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-muted-foreground">
           Selected:{" "}
           <span className="font-medium text-foreground">
@@ -139,7 +139,9 @@ export default function TestSetupPage() {
               : "None"}
           </span>
         </p>
-        <Button onClick={handleStartTest}>Start Test</Button>
+        <Button onClick={handleStartTest} className="min-h-10 w-full sm:w-auto">
+          Start Test
+        </Button>
       </div>
     </section>
   );

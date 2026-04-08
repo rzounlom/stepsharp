@@ -26,7 +26,7 @@ export function ReviewItem({
 
   return (
     <Card className="border-border">
-      <CardContent className="space-y-4 p-5">
+      <CardContent className="space-y-4 p-4 sm:p-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="text-sm font-medium">Question {questionNumber}</p>
           <div className="flex items-center gap-2 text-xs">
@@ -48,7 +48,9 @@ export function ReviewItem({
           </div>
         </div>
 
-        <p className="text-[1.02rem] leading-8">{question.stem}</p>
+        <p className="text-base leading-7 sm:text-[1.02rem] sm:leading-8">
+          {question.stem}
+        </p>
 
         <div className="space-y-2 text-sm leading-6">
           <p>

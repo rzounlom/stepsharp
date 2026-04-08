@@ -122,8 +122,8 @@ export default function TestSessionPage() {
 
       {!isHydrating && !selectedPreset && status === "idle" ? (
         <Card>
-          <CardContent className="space-y-4 pt-6">
-            <h1 className="text-2xl font-semibold tracking-tight">
+          <CardContent className="space-y-4 p-5">
+            <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
               No Active Test Session
             </h1>
             <p className="text-muted-foreground">
@@ -142,7 +142,7 @@ export default function TestSessionPage() {
       {config && questions.length === 0 ? (
         <Card>
           <CardContent className="space-y-4 p-5">
-            <h1 className="text-2xl font-semibold tracking-tight">
+            <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
               No Questions Available
             </h1>
             <p className="text-muted-foreground">
@@ -162,7 +162,7 @@ export default function TestSessionPage() {
       {config && questions.length > 0 && !currentQuestion && status !== "block_complete" ? (
         <Card>
           <CardContent className="space-y-4 p-5">
-            <h1 className="text-2xl font-semibold tracking-tight">
+            <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
               Loading Current Question
             </h1>
             <p className="text-muted-foreground">
@@ -174,8 +174,8 @@ export default function TestSessionPage() {
 
       {config && currentQuestion && status !== "block_complete" ? (
         <>
-          <header className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-border bg-muted/15 px-4 py-3 text-sm">
-            <div className="flex items-center gap-6">
+          <header className="grid gap-2 rounded-md border border-border bg-muted/15 px-4 py-3 text-sm sm:flex sm:items-center sm:justify-between sm:gap-3">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-6">
               <p>
                 <span className="font-medium">Block:</span> {currentBlock} /{" "}
                 {config.blocks}
@@ -185,7 +185,7 @@ export default function TestSessionPage() {
                 {questionNumberInBlock} / {config.questionsPerBlock}
               </p>
             </div>
-            <p className="font-semibold tabular-nums">
+            <p className="font-semibold tabular-nums sm:text-right">
               Time Left: {formatSeconds(blockTimeRemainingSeconds)}
             </p>
           </header>
@@ -208,7 +208,7 @@ export default function TestSessionPage() {
                       type="button"
                       onClick={() => goToQuestion(absoluteIndex)}
                       className={cn(
-                        "inline-flex h-8 min-w-8 items-center justify-center rounded-md border px-2 text-xs font-medium",
+                        "inline-flex h-9 min-w-9 items-center justify-center rounded-md border px-2 text-xs font-medium sm:h-8 sm:min-w-8",
                         "transition-colors hover:bg-muted/50",
                         isCurrent && "border-primary bg-primary/10 text-primary",
                         !isCurrent &&
@@ -241,8 +241,10 @@ export default function TestSessionPage() {
           </Card>
 
           <Card className="border border-border">
-            <CardContent className="space-y-6 pt-6">
-              <p className="text-[1.05rem] leading-8">{currentQuestion.stem}</p>
+            <CardContent className="space-y-5 p-4 sm:space-y-6 sm:p-6">
+              <p className="text-base leading-7 sm:text-[1.05rem] sm:leading-8">
+                {currentQuestion.stem}
+              </p>
 
               <AnswerChoices
                 choices={currentQuestion.choices}
@@ -252,30 +254,32 @@ export default function TestSessionPage() {
             </CardContent>
           </Card>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-3">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-3 border-t border-border pt-3 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-wrap items-center gap-2">
               <Button
                 variant={isFlagged ? "default" : "outline"}
                 onClick={() => toggleFlag(currentQuestion.id)}
+                className="min-h-10"
               >
                 {isFlagged ? "Flagged" : "Mark/Flag"}
               </Button>
-              <Button variant="outline" disabled>
+              <Button variant="outline" disabled className="min-h-10">
                 Pause (Soon)
               </Button>
-              <Button variant="outline" disabled>
+              <Button variant="outline" disabled className="min-h-10">
                 Block Summary (Soon)
               </Button>
-              <Button variant="outline" onClick={endBlockEarly}>
+              <Button variant="outline" onClick={endBlockEarly} className="min-h-10">
                 End Block Early
               </Button>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center">
               <Button
                 variant="outline"
                 onClick={() => goToQuestion(currentQuestionIndex - 1)}
                 disabled={!canGoPrevious}
+                className="min-h-10"
               >
                 Previous
               </Button>
@@ -283,6 +287,7 @@ export default function TestSessionPage() {
                 variant="outline"
                 onClick={() => goToQuestion(currentQuestionIndex + 1)}
                 disabled={!canGoNext}
+                className="min-h-10"
               >
                 Next
               </Button>
@@ -294,13 +299,17 @@ export default function TestSessionPage() {
       {status === "block_complete" && config ? (
         <Card>
           <CardContent className="space-y-4 p-5">
-            <h2 className="text-2xl font-semibold tracking-tight">Block Complete</h2>
+            <h2 className="text-xl font-semibold tracking-tight sm:text-2xl">
+              Block Complete
+            </h2>
             <p className="text-muted-foreground">
               {blockCompleteReason === "ended_early"
                 ? `You ended Block ${currentBlock} early. Continue when you are ready.`
                 : `Time has ended for Block ${currentBlock}. Continue when you are ready.`}
             </p>
-            <Button onClick={nextBlock}>Start Next Block</Button>
+            <Button onClick={nextBlock} className="min-h-10 w-full sm:w-auto">
+              Start Next Block
+            </Button>
           </CardContent>
         </Card>
       ) : null}

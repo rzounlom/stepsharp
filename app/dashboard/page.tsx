@@ -3,9 +3,9 @@ import { DASHBOARD_MODE_CARDS } from "@/lib/constants";
 
 export default function DashboardPage() {
   return (
-    <section className="mx-auto w-full max-w-5xl space-y-8">
+    <section className="mx-auto w-full max-w-5xl space-y-6 sm:space-y-8">
       <header className="space-y-2 border-b border-border pb-4">
-        <h1 className="text-3xl font-semibold tracking-tight">Dashboard</h1>
+        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Dashboard</h1>
         <p className="text-muted-foreground">
           Choose a mode to continue your learning session.
         </p>
@@ -15,7 +15,7 @@ export default function DashboardPage() {
         {DASHBOARD_MODE_CARDS.map((card) => (
           <article
             key={card.title}
-            className="rounded-xl border border-border bg-card p-6"
+            className="rounded-xl border border-border bg-card p-5 sm:p-6"
           >
             <h2 className="text-xl font-semibold">{card.title}</h2>
             <p className="mt-2 text-[0.95rem] leading-6 text-muted-foreground">
@@ -23,7 +23,7 @@ export default function DashboardPage() {
             </p>
             <Link
               href={card.href}
-              className="mt-6 inline-flex rounded-md border border-border bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
+              className="mt-6 inline-flex min-h-10 w-full items-center justify-center rounded-md border border-border bg-background px-4 text-sm font-medium transition-colors hover:bg-muted sm:w-auto"
             >
               {card.ctaLabel}
             </Link>

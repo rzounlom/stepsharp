@@ -30,7 +30,7 @@ export function AnswerChoices({
             key={choice.label}
             htmlFor={`choice-${choice.label}`}
             className={cn(
-              "flex cursor-pointer items-start gap-3 rounded-md border border-border p-3.5 transition-colors",
+              "flex min-h-12 cursor-pointer items-start gap-3 rounded-md border border-border p-3 transition-colors sm:p-3.5",
               "hover:bg-muted/50",
               isSelected && "border-primary bg-primary/5",
               disabled && "cursor-not-allowed opacity-80 hover:bg-transparent",
@@ -43,7 +43,9 @@ export function AnswerChoices({
             />
             <div className="space-y-0.5">
               <p className="text-sm font-semibold tracking-tight">{choice.label}.</p>
-              <p className="text-sm leading-6 text-foreground/90">{choice.text}</p>
+              <p className="text-sm leading-6 text-foreground/90 sm:text-[0.95rem]">
+                {choice.text}
+              </p>
             </div>
           </label>
         );

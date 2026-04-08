@@ -15,7 +15,7 @@ export function QuestionCard({
   children,
 }: QuestionCardProps) {
   return (
-    <Card className="border border-border shadow-sm">
+    <Card className="border border-border">
       <CardHeader className="border-b border-border pb-3">
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <span>Question {questionNumber}</span>
@@ -31,8 +31,8 @@ export function QuestionCard({
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-6 pt-6">
-        <p className="text-lg leading-8">{question.stem}</p>
+      <CardContent className="space-y-6 p-6">
+        <p className="text-[1.05rem] leading-8 text-foreground">{question.stem}</p>
         {children}
       </CardContent>
     </Card>

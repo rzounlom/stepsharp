@@ -23,7 +23,7 @@ export default function TestResultsPage() {
 
   return (
     <section className="mx-auto w-full max-w-5xl space-y-6">
-      <header className="space-y-2">
+      <header className="space-y-2 border-b border-border pb-4">
         <h1 className="text-3xl font-semibold tracking-tight">Test Results</h1>
         <p className="text-muted-foreground">
           Review your completed session question by question.
@@ -31,7 +31,7 @@ export default function TestResultsPage() {
       </header>
 
       {totalQuestions === 0 ? (
-        <div className="rounded-lg border border-border bg-card p-6">
+        <div className="rounded-md border border-border bg-card p-5">
           <p className="text-muted-foreground">
             No completed session data found yet. Start a test to generate
             results.

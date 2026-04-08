@@ -15,7 +15,7 @@ export function ExplanationPanel({
   return (
     <section
       className={cn(
-        "space-y-3 rounded-lg border p-4",
+        "space-y-3 rounded-md border p-4",
         isCorrect
           ? "border-emerald-200 bg-emerald-50/70"
           : "border-amber-200 bg-amber-50/70",
@@ -24,7 +24,7 @@ export function ExplanationPanel({
       <p className={cn("font-semibold", isCorrect ? "text-emerald-700" : "text-amber-700")}>
         {isCorrect ? "Correct" : "Incorrect"}
       </p>
-      <div className="space-y-2 text-sm">
+      <div className="space-y-2 text-sm leading-6">
         <p>
           <span className="font-medium">Your answer: </span>
           <span className={cn(!isCorrect && "text-amber-800")}>{selectedAnswer}</span>

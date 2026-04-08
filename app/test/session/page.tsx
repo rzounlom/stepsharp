@@ -174,7 +174,7 @@ export default function TestSessionPage() {
 
       {config && currentQuestion && status !== "block_complete" ? (
         <>
-          <header className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-muted/20 px-4 py-3 text-sm">
+          <header className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-border bg-muted/15 px-4 py-3 text-sm">
             <div className="flex items-center gap-6">
               <p>
                 <span className="font-medium">Block:</span> {currentBlock} /{" "}
@@ -233,16 +233,16 @@ export default function TestSessionPage() {
                 })}
               </div>
               <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-                <span>Current: blue</span>
-                <span>Answered: green</span>
-                <span>Flagged: amber ring</span>
+                <span>Current</span>
+                <span>Answered</span>
+                <span>Flagged</span>
               </div>
             </CardContent>
           </Card>
 
           <Card className="border border-border">
             <CardContent className="space-y-6 pt-6">
-              <p className="text-lg leading-8">{currentQuestion.stem}</p>
+              <p className="text-[1.05rem] leading-8">{currentQuestion.stem}</p>
 
               <AnswerChoices
                 choices={currentQuestion.choices}

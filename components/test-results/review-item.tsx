@@ -26,7 +26,7 @@ export function ReviewItem({
 
   return (
     <Card className="border-border">
-      <CardContent className="space-y-4 pt-5">
+      <CardContent className="space-y-4 p-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="text-sm font-medium">Question {questionNumber}</p>
           <div className="flex items-center gap-2 text-xs">
@@ -48,9 +48,9 @@ export function ReviewItem({
           </div>
         </div>
 
-        <p className="leading-7">{question.stem}</p>
+        <p className="text-[1.02rem] leading-8">{question.stem}</p>
 
-        <div className="space-y-2 text-sm">
+        <div className="space-y-2 text-sm leading-6">
           <p>
             <span className="font-medium">Your answer: </span>
             {selectedChoice ? (

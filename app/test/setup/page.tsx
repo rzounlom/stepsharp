@@ -66,11 +66,11 @@ export default function TestSetupPage() {
                 className={cn(
                   "h-full border transition-colors",
                   isSelected
-                    ? "border-primary bg-primary/5 ring-1 ring-primary/30"
+                    ? "border-primary bg-primary/5 ring-1 ring-primary/25"
                     : "border-border hover:border-primary/40",
                 )}
               >
-                <CardHeader>
+                <CardHeader className="pb-3">
                   <CardTitle className="flex items-center justify-between text-lg">
                     <span>{preset.label}</span>
                     <span
@@ -85,7 +85,7 @@ export default function TestSetupPage() {
                     </span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-1 text-sm text-muted-foreground">
+                <CardContent className="space-y-1 pb-5 text-sm leading-6 text-muted-foreground">
                   <p>{preset.blocks} blocks</p>
                   <p>{preset.questionsPerBlock} questions per block</p>
                   <p>{preset.minutesPerBlock} minutes per block</p>

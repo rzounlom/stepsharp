@@ -17,8 +17,8 @@ export function SummaryCards({
 }: SummaryCardsProps) {
   return (
     <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-      <Card>
-        <CardContent className="space-y-1 pt-5">
+      <Card className="border-border">
+        <CardContent className="space-y-1 p-4">
           <p className="text-xs uppercase tracking-wide text-muted-foreground">
             Score
           </p>
@@ -28,24 +28,24 @@ export function SummaryCards({
           </p>
         </CardContent>
       </Card>
-      <Card>
-        <CardContent className="space-y-1 pt-5">
+      <Card className="border-border">
+        <CardContent className="space-y-1 p-4">
           <p className="text-xs uppercase tracking-wide text-muted-foreground">
             Correct
           </p>
           <p className="text-2xl font-semibold text-emerald-700">{correctCount}</p>
         </CardContent>
       </Card>
-      <Card>
-        <CardContent className="space-y-1 pt-5">
+      <Card className="border-border">
+        <CardContent className="space-y-1 p-4">
           <p className="text-xs uppercase tracking-wide text-muted-foreground">
             Incorrect
           </p>
           <p className="text-2xl font-semibold text-rose-700">{incorrectCount}</p>
         </CardContent>
       </Card>
-      <Card>
-        <CardContent className="space-y-1 pt-5">
+      <Card className="border-border">
+        <CardContent className="space-y-1 p-4">
           <p className="text-xs uppercase tracking-wide text-muted-foreground">
             Flagged
           </p>

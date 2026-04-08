@@ -119,9 +119,9 @@ export default function TutorPage() {
 
   return (
     <section className="mx-auto w-full max-w-4xl space-y-6">
-      <header className="rounded-lg border border-border bg-muted/30 px-4 py-3">
+      <header className="rounded-md border border-border bg-muted/20 px-4 py-3">
         <div className="flex items-center justify-between text-sm">
-          <p className="font-medium">Tutor Mode</p>
+          <p className="font-medium tracking-tight">Tutor Mode</p>
           <p className="text-muted-foreground">
             Question {currentIndex + 1} of {questions.length}
           </p>

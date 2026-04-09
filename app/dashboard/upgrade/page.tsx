@@ -78,7 +78,7 @@ export default function UpgradePage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-3xl font-semibold tracking-tight">
-            $25
+            $24.99
             <span className="text-base font-normal text-muted-foreground">
               /month
             </span>

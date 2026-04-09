@@ -1,14 +1,9 @@
+import { Prisma } from "@prisma/client";
 import type Stripe from "stripe";
 import { NextRequest, NextResponse } from "next/server";
 import { getStripeServerClient } from "@/lib/stripe";
-import {
-  linkStripeCustomerToClerkUser,
-  setSubscriptionByCustomerId,
-} from "@/lib/subscription-store";
-
-function isProStatus(status: Stripe.Subscription.Status) {
-  return status === "active" || status === "trialing" || status === "past_due";
-}
+import { applyStripeWebhookEvent } from "@/lib/subscription-store";
+import { prisma } from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
   const signature = req.headers.get("stripe-signature");
@@ -30,52 +25,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid webhook signature." }, { status: 400 });
   }
 
-  if (event.type === "checkout.session.completed") {
-    const session = event.data.object as Stripe.Checkout.Session;
-    const customerId =
-      typeof session.customer === "string" ? session.customer : session.customer?.id;
-    const subscriptionId =
-      typeof session.subscription === "string"
-        ? session.subscription
-        : session.subscription?.id ?? null;
-    const clerkUserId = session.metadata?.clerkUserId;
-
-    if (customerId && clerkUserId) {
-      linkStripeCustomerToClerkUser(customerId, clerkUserId);
-      setSubscriptionByCustomerId({
-        stripeCustomerId: customerId,
-        stripeSubscriptionId: subscriptionId,
-        status: "pro",
+  try {
+    await prisma.$transaction(async (tx) => {
+      await tx.stripeProcessedWebhookEvent.create({
+        data: {
+          stripeEventId: event.id,
+          eventType: event.type,
+        },
       });
+      await applyStripeWebhookEvent(tx, event);
+    });
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      return NextResponse.json({ received: true });
     }
-  }
-
-  if (event.type === "customer.subscription.created" || event.type === "customer.subscription.updated") {
-    const subscription = event.data.object as Stripe.Subscription;
-    const customerId =
-      typeof subscription.customer === "string"
-        ? subscription.customer
-        : subscription.customer.id;
-
-    setSubscriptionByCustomerId({
-      stripeCustomerId: customerId,
-      stripeSubscriptionId: subscription.id,
-      status: isProStatus(subscription.status) ? "pro" : "free",
-    });
-  }
-
-  if (event.type === "customer.subscription.deleted") {
-    const subscription = event.data.object as Stripe.Subscription;
-    const customerId =
-      typeof subscription.customer === "string"
-        ? subscription.customer
-        : subscription.customer.id;
-
-    setSubscriptionByCustomerId({
-      stripeCustomerId: customerId,
-      stripeSubscriptionId: subscription.id,
-      status: "free",
-    });
+    throw error;
   }
 
   return NextResponse.json({ received: true });

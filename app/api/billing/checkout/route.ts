@@ -32,9 +32,9 @@ export async function POST(req: NextRequest) {
     clerkUserId: userId,
     email: clerkUser?.primaryEmailAddress?.emailAddress ?? null,
   });
-  linkStripeCustomerToClerkUser(stripeCustomerId, userId);
+  await linkStripeCustomerToClerkUser(stripeCustomerId, userId);
 
-  const existingRecord = getBillingRecord(userId);
+  const existingRecord = await getBillingRecord(userId);
   if (existingRecord.status === "pro") {
     return NextResponse.json({ alreadySubscribed: true, redirectTo: "/dashboard" });
   }

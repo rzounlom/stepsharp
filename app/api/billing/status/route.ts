@@ -8,7 +8,7 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const record = getBillingRecord(userId);
+  const record = await getBillingRecord(userId);
   return NextResponse.json({
     status: record.status,
     isSubscribed: record.status === "pro",

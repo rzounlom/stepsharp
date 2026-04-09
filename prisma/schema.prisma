@@ -27,3 +27,51 @@ model StripeProcessedWebhookEvent {
   eventType     String
   createdAt     DateTime @default(now())
 }
+
+// --- Question bank (Step 2 content) ---
+
+model ExamSource {
+  id        String     @id @default(cuid())
+  name      String
+  slug      String     @unique
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  questions Question[]
+}
+
+enum QuestionDifficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+model Question {
+  id                   String              @id @default(cuid())
+  examSourceId         String
+  examSource           ExamSource          @relation(fields: [examSourceId], references: [id], onDelete: Cascade)
+  questionNumber       Int
+  stem                 String              @db.Text
+  correctAnswer        String
+  explanation          String              @db.Text
+  educationalObjective String              @db.Text
+  topic                String?
+  difficulty           QuestionDifficulty?
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+  choices              QuestionChoice[]
+
+  @@unique([examSourceId, questionNumber])
+  @@index([examSourceId])
+}
+
+model QuestionChoice {
+  id         String   @id @default(cuid())
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  label      String
+  text       String   @db.Text
+  sortOrder  Int      @default(0)
+
+  @@unique([questionId, label])
+  @@index([questionId, sortOrder])
+}

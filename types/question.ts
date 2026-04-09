@@ -5,6 +5,9 @@ export type QuestionChoice = {
 
 export type Question = {
   id: string;
+  /**
+   * Legacy grouping for seed/local JSON. DB-backed rows use `examSourceId` + `questionNumber`.
+   */
   blockId: string;
   stem: string;
   choices: QuestionChoice[];
@@ -13,4 +16,8 @@ export type Question = {
   educationalObjective: string;
   topic?: string;
   difficulty?: "easy" | "medium" | "hard";
+  /** Present when loaded from Prisma (exam catalog). */
+  examSourceId?: string;
+  /** Order within the exam source; aligns with DB `questionNumber`. */
+  questionNumber?: number;
 };

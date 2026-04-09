@@ -1,11 +1,12 @@
 "use client";
 
-import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useEffect, useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { useBilling } from "@/context/billing-context";
+import { useSearchParams } from "next/navigation";
 
 export default function UpgradePage() {
   const { isSubscribed, isLoading, refreshBilling } = useBilling();
@@ -77,7 +78,10 @@ export default function UpgradePage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-3xl font-semibold tracking-tight">
-            $29<span className="text-base font-normal text-muted-foreground">/month</span>
+            $25
+            <span className="text-base font-normal text-muted-foreground">
+              /month
+            </span>
           </p>
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li>Full Test Mode access</li>

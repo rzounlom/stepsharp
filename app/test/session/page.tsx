@@ -6,13 +6,16 @@ import { useRouter } from "next/navigation";
 import { AnswerChoices } from "@/components/tutor/answer-choices";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useBilling } from "@/context/billing-context";
 import { useTestSession } from "@/context/test-session-context";
 import { useTestSetup } from "@/context/test-setup-context";
+import { applyTestAccessGating } from "@/lib/billing";
 import { cn } from "@/lib/utils";
 
 export default function TestSessionPage() {
   const router = useRouter();
   const { selectedPreset, setup, isHydrating } = useTestSetup();
+  const { isSubscribed } = useBilling();
   const {
     config,
     questions,
@@ -42,16 +45,28 @@ export default function TestSessionPage() {
     }
 
     if (status === "idle" && selectedPreset) {
-      startSession({
-        blocks: selectedPreset.blocks,
-        questionsPerBlock: selectedPreset.questionsPerBlock,
-        minutesPerBlock: selectedPreset.minutesPerBlock,
-        minimumBreakMinutes: selectedPreset.minimumBreakMinutes,
-        tutorialMinutes: selectedPreset.tutorialMinutes,
-        blockTransitionMode: setup.blockTransitionMode,
-      });
+      startSession(
+        applyTestAccessGating(
+          {
+            blocks: selectedPreset.blocks,
+            questionsPerBlock: selectedPreset.questionsPerBlock,
+            minutesPerBlock: selectedPreset.minutesPerBlock,
+            minimumBreakMinutes: selectedPreset.minimumBreakMinutes,
+            tutorialMinutes: selectedPreset.tutorialMinutes,
+            blockTransitionMode: setup.blockTransitionMode,
+          },
+          isSubscribed,
+        ),
+      );
     }
-  }, [isHydrating, selectedPreset, setup.blockTransitionMode, startSession, status]);
+  }, [
+    isHydrating,
+    isSubscribed,
+    selectedPreset,
+    setup.blockTransitionMode,
+    startSession,
+    status,
+  ]);
 
   useEffect(() => {
     if (status === "finished") {
@@ -125,6 +140,16 @@ export default function TestSessionPage() {
     <section className="mx-auto w-full max-w-5xl space-y-6">
       {isHydrating ? (
         <p className="text-sm text-muted-foreground">Loading test setup...</p>
+      ) : null}
+
+      {!isSubscribed ? (
+        <div className="rounded-md border border-border bg-muted/30 p-4 text-sm text-muted-foreground">
+          Free access: this session runs in limited Test Mode.{" "}
+          <Link href="/dashboard/upgrade" className="font-medium text-foreground underline">
+            Upgrade to Pro
+          </Link>{" "}
+          for full Test Mode.
+        </div>
       ) : null}
 
       {!isHydrating && !selectedPreset && status === "idle" ? (

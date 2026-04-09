@@ -3,7 +3,9 @@
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useBilling } from "@/context/billing-context";
 import { useTestSession } from "@/context/test-session-context";
+import { applyTestAccessGating } from "@/lib/billing";
 import { cn } from "@/lib/utils";
 import { TEST_MODE_PRESETS } from "@/lib/test-setup";
 import { useTestSetup } from "@/context/test-setup-context";
@@ -17,21 +19,35 @@ export default function TestSetupPage() {
     setPresetId,
     setBlockTransitionMode,
   } = useTestSetup();
+  const { isSubscribed } = useBilling();
   const { startSession } = useTestSession();
 
   function handleStartTest() {
     if (selectedPreset) {
-      startSession({
-        blocks: selectedPreset.blocks,
-        questionsPerBlock: selectedPreset.questionsPerBlock,
-        minutesPerBlock: selectedPreset.minutesPerBlock,
-        minimumBreakMinutes: selectedPreset.minimumBreakMinutes,
-        tutorialMinutes: selectedPreset.tutorialMinutes,
-        blockTransitionMode: setup.blockTransitionMode,
-      });
+      const config = applyTestAccessGating(
+        {
+          blocks: selectedPreset.blocks,
+          questionsPerBlock: selectedPreset.questionsPerBlock,
+          minutesPerBlock: selectedPreset.minutesPerBlock,
+          minimumBreakMinutes: selectedPreset.minimumBreakMinutes,
+          tutorialMinutes: selectedPreset.tutorialMinutes,
+          blockTransitionMode: setup.blockTransitionMode,
+        },
+        isSubscribed,
+      );
+
+      startSession(config);
     }
     router.push("/test/session");
   }
+
+  const selectedLabel = selectedPreset
+    ? `${selectedPreset.blocks}x${selectedPreset.questionsPerBlock}, ${selectedPreset.minutesPerBlock} min/block`
+    : "None";
+
+  const freeTierLabel = selectedPreset
+    ? `${Math.min(selectedPreset.blocks, 1)}x${Math.min(selectedPreset.questionsPerBlock, 10)}, ${selectedPreset.minutesPerBlock} min/block`
+    : "1x10";
 
   if (isHydrating) {
     return (
@@ -52,6 +68,14 @@ export default function TestSetupPage() {
           Choose the official Step 2 CK timing format you are preparing for.
         </p>
       </header>
+
+      {!isSubscribed ? (
+        <div className="rounded-md border border-border bg-muted/30 p-4 text-sm text-muted-foreground">
+          You are on free access. Test Mode is currently limited to{" "}
+          <span className="font-medium text-foreground">{freeTierLabel}</span>. Upgrade
+          for full Test Mode.
+        </div>
+      ) : null}
 
       <div className="grid gap-4 md:grid-cols-2">
         {TEST_MODE_PRESETS.map((preset) => {
@@ -138,9 +162,7 @@ export default function TestSetupPage() {
         <p className="text-sm text-muted-foreground">
           Selected:{" "}
           <span className="font-medium text-foreground">
-            {selectedPreset
-              ? `${selectedPreset.blocks}x${selectedPreset.questionsPerBlock}, ${selectedPreset.minutesPerBlock} min/block`
-              : "None"}
+            {isSubscribed ? selectedLabel : `${selectedLabel} (Free tier runs as ${freeTierLabel})`}
           </span>
         </p>
         <Button onClick={handleStartTest} className="min-h-10 w-full sm:w-auto">
